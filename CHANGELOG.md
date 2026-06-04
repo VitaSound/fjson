@@ -5,6 +5,14 @@ All notable changes to fjson are documented here.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and
 this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.2.1] - 2026-06-05
+
+### Added
+
+- `fjson.debug-node` for inspecting parsed tree nodes.
+- `fjson.emit-node-pretty` for indented JSON tree output.
+- API cookbook showing parse, debug dump, compact emit, and pretty emit.
+
 ## [0.2.0] - 2026-06-05
 
 Add an in-memory JSON tree layer while preserving the 0.1.0 read-lite and

@@ -24,6 +24,18 @@ variable fjson.rt-len
     fjson.fid @ close-file throw
     fjson.emit-to-stdout ;
 
+: fjson.rt-write-pretty ( node -- )
+    fjson.rt-path fjson.emit-to-file
+    fjson.emit-node-pretty
+    fjson.fid @ close-file throw
+    fjson.emit-to-stdout ;
+
+: fjson.rt-write-debug ( node -- )
+    fjson.rt-path fjson.emit-to-file
+    fjson.debug-node
+    fjson.fid @ close-file throw
+    fjson.emit-to-stdout ;
+
 T{ s\" {\"key\":\"val\",\"n\":42,\"items\":[1,2]}" fjson.parse
     dup fjson.rt-root ! fjson.rt-write
     fjson.rt-slurp s\" {\"key\":\"val\",\"n\":42,\"items\":[1,2]}" compare -> 0 }T
@@ -33,6 +45,14 @@ T{ fjson.rt-slurp fjson.parse
 
 T{ s" items" fjson.rt-root2 @ fjson.object-get
     dup fjson.array-len swap 1 swap fjson.array-nth fjson.node-num@ -> 2 2 }T
+
+T{ fjson.rt-root @ fjson.rt-write-pretty
+    fjson.rt-slurp
+    s\" {\n  \"key\": \"val\",\n  \"n\": 42,\n  \"items\": [\n    1,\n    2\n  ]\n}" compare -> 0 }T
+
+T{ fjson.rt-root @ fjson.rt-write-debug
+    fjson.rt-slurp
+    s\" node OBJ len=3\n  pair key=\"key\"\n    node STR \"val\"\n  pair key=\"n\"\n    node NUM 42\n  pair key=\"items\"\n    node ARR len=2\n      node NUM 1\n      node NUM 2\n" compare -> 0 }T
 
 T{ fjson.rt-root @ fjson.node-free
     fjson.rt-root2 @ fjson.node-free -> }T

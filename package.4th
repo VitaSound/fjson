@@ -2,7 +2,7 @@
 \   https://theforth.net/guidelines
 forth-package
     key-value name fjson
-    key-value version 0.2.0
+    key-value version 0.2.1
     key-value description Minimal JSON write and read-lite for Gforth (VitaSound tooling, MCP, future fcov)
     key-value license COPL
     key-value main fjson.4th

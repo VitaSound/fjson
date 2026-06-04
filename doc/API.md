@@ -162,6 +162,8 @@ and whitespace outside strings. String escapes supported: `\"`, `\\`, `\n`,
 | Word | Stack | Description |
 |------|-------|-------------|
 | `fjson.emit-node` | `( node -- )` | Serialize a node tree to the current `fjson` output target. |
+| `fjson.emit-node-pretty` | `( node -- )` | Serialize with indentation and newlines. |
+| `fjson.debug-node` | `( node -- )` | Emit an indented Forth-side tree dump for debugging. |
 
 Example:
 
@@ -169,6 +171,83 @@ Example:
 s\" {\"key\":\"val\",\"n\":42}" fjson.parse dup
 s" key" rot fjson.object-get fjson.node-str@ type cr
 fjson.node-free
+```
+
+### Cookbook: parse, inspect, emit, pretty emit
+
+This example uses every JSON value kind supported by the `0.2.x` tree layer:
+object, array, string, and unsigned integer. Booleans, null, floats, and signed
+numbers are not parsed in this release.
+
+Example input file:
+
+```json
+{"name":"fmix","version":2,"items":["read-lite","tree"],"meta":{"count":2}}
+```
+
+Test script:
+
+```forth
+require fjson.4th
+
+variable fjson.example-root
+
+: example-json ( -- a u )
+    s\" {\"name\":\"fmix\",\"version\":2,\"items\":[\"read-lite\",\"tree\"],\"meta\":{\"count\":2}}" ;
+
+\ 1. Parse a minimal JSON document that covers all supported tree types.
+example-json fjson.parse fjson.example-root !
+
+\ 2. Debug dump: show how JSON became Forth-side tagged nodes.
+fjson.example-root @ fjson.debug-node
+
+\ 3. Emit compact JSON again.
+fjson.example-root @ fjson.emit-node cr
+
+\ 4. Emit pretty JSON.
+fjson.example-root @ fjson.emit-node-pretty cr
+
+fjson.example-root @ fjson.node-free
+```
+
+Debug dump output:
+
+```text
+node OBJ len=4
+  pair key="name"
+    node STR "fmix"
+  pair key="version"
+    node NUM 2
+  pair key="items"
+    node ARR len=2
+      node STR "read-lite"
+      node STR "tree"
+  pair key="meta"
+    node OBJ len=1
+      pair key="count"
+        node NUM 2
+```
+
+Compact JSON output:
+
+```json
+{"name":"fmix","version":2,"items":["read-lite","tree"],"meta":{"count":2}}
+```
+
+Pretty JSON output:
+
+```json
+{
+  "name": "fmix",
+  "version": 2,
+  "items": [
+    "read-lite",
+    "tree"
+  ],
+  "meta": {
+    "count": 2
+  }
+}
 ```
 
 ---
