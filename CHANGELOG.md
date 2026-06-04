@@ -5,6 +5,23 @@ All notable changes to fjson are documented here.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and
 this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.2.0] - 2026-06-05
+
+Add an in-memory JSON tree layer while preserving the 0.1.0 read-lite and
+emit APIs.
+
+### Added
+
+- **Tree nodes** (`fjson/node.4th`): tagged JSON node and object pair structs.
+- **Traversal/lifecycle** (`fjson/tree.4th`): object lookup, array indexing,
+  lengths, and recursive `fjson.node-free`.
+- **Parser** (`fjson/parse.4th`): objects, arrays, strings, unsigned integers,
+  whitespace, and basic string escapes.
+- **Tree emit** (`fjson/emit-tree.4th`): `fjson.emit-node` round-trips parsed
+  trees through existing emit primitives.
+- Tests for tree access and parse/emit round-trip behavior.
+- `fenum` `0.1.1` dependency for `ulist` containers.
+
 ## [0.1.0] - 2026-06-04
 
 Initial public release. Minimal JSON **write** and **read-lite** for Gforth

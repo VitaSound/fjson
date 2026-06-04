@@ -1,9 +1,10 @@
 # fjson
 
-Minimal **JSON write** and **read-lite** for Gforth (VitaSound). Not a full RFC parser.
+Minimal **JSON write**, **read-lite**, and **tree** support for Gforth (VitaSound). Not a full RFC parser.
 
 - **Write** — escape, quoted strings, uint, object/array helpers (same role as `fcov.json-*`, for a future fcov migration).
 - **Read-lite** — `fjson.contains?`, `fjson.key-string`, `fjson.key-digits` on one-line flat JSON (MCP NDJSON).
+- **Tree** — parse JSON into allocated nodes backed by `fenum` `ulist`, traverse objects/arrays, free, and emit again.
 
 No JSON package in [theforth.net-packages](https://github.com/theforth/theforth.net-packages) catalog; this fills that gap for our toolchain.
 
@@ -27,6 +28,11 @@ s" out.json" fjson.emit-to-file
 s" {" fjson.emit
 s" \"ok\"" fjson.quoted
 s" }" fjson.emit
+
+\ tree
+s\" {\"name\":\"fmix\",\"n\":42}" fjson.parse dup
+s" name" rot fjson.object-get fjson.node-str@ type cr
+fjson.node-free
 ```
 
 ## Consumers

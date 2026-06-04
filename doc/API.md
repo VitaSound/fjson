@@ -1,13 +1,13 @@
 # fjson API reference
 
-Minimal JSON **write** and **read-lite** for Gforth. All words use the
+Minimal JSON **write**, **read-lite**, and **tree** support for Gforth. All words use the
 `fjson.` prefix. Load with:
 
 ```forth
 require fjson.4th
 ```
 
-This pulls in `fjson/read.4th` and `fjson/emit.4th` (and `fjson/util.4th`).
+This pulls in read-lite, emit, and tree modules (and `fjson/util.4th`).
 
 ## Design
 
@@ -15,10 +15,11 @@ This pulls in `fjson/read.4th` and `fjson/emit.4th` (and `fjson/util.4th`).
 |-------|------|
 | **read-lite** | Scan a **single flat line** (typical MCP NDJSON). No nested object walk; keys are found by substring search. |
 | **write** | Build JSON text to stdout or a file. RFC-style escaping for strings; integers via `fjson.uint`. |
+| **tree** | Parse JSON text into allocated nodes backed by `fenum` `ulist`, traverse it, free it, and emit it again. |
 | **util** | Allocated strings (`fjson.str-dup`, `fjson.str-concat`) used by read and by fmcp. |
 
-**Not supported:** arrays in read-lite, Unicode beyond ASCII escapes, floats,
-`true`/`false`/`null` parsing, streaming multi-line documents.
+**Not supported:** arrays in read-lite, floats, signed numbers,
+`true`/`false`/`null` parsing, and streaming multi-line documents.
 
 ---
 
@@ -65,7 +66,7 @@ Default output is **stdout** (`fjson.emit-to-stdout`). Switch target with
 
 | Word | Stack | Description |
 |------|-------|-------------|
-| `fjson.emit-to-stdout` | `( -- )` | Write subsequent emits to stdout (fileid 1). |
+| `fjson.emit-to-stdout` | `( -- )` | Write subsequent emits to Gforth `stdout`. |
 | `fjson.emit-to-file` | `( patha pathu -- )` | Open path for writing; subsequent emits go there. |
 
 ### Primitives
@@ -97,6 +98,77 @@ fjson.object-open
 s" ok" s" true" fjson.emit-key-string   \ string value as-is in quotes
 s" n" 3 fjson.key-uint
 fjson.object-close
+```
+
+---
+
+## Tree (`fjson/node.4th`, `fjson/tree.4th`, `fjson/parse.4th`, `fjson/emit-tree.4th`)
+
+Tree nodes are allocated structs. The caller owns the root returned by
+`fjson.parse` and must release it with `fjson.node-free`.
+
+### Tags
+
+| Constant | Value | Payload |
+|----------|-------|---------|
+| `FJSON_J-NULL` | `0` | reserved |
+| `FJSON_J-BOOL` | `1` | reserved |
+| `FJSON_J-NUM` | `2` | unsigned integer in `j-num` |
+| `FJSON_J-STR` | `3` | allocated string in `j-str-a` / `j-str-u` |
+| `FJSON_J-ARR` | `4` | `j-child` is a `ulist` of json-node addresses |
+| `FJSON_J-OBJ` | `5` | `j-child` is a `ulist` of json-pair addresses |
+
+Objects are stored as Erlang-style proplists: a `ulist` of `{ key, value }`
+pairs. Arrays are `ulist` values. Parser insertion uses `ulist-add` and then
+`ulist-reverse`, so traversal and emit preserve JSON order.
+
+### Allocation and Access
+
+| Word | Stack | Description |
+|------|-------|-------------|
+| `fjson.node-new` | `( type -- node )` | Allocate a zeroed node with `j-type`. |
+| `fjson.node-str` | `( a u -- node )` | Allocate a string node, copying the bytes. |
+| `fjson.node-num` | `( u -- node )` | Allocate an unsigned integer node. |
+| `fjson.node-arr` | `( ulist -- node )` | Wrap an array list. |
+| `fjson.node-obj` | `( ulist -- node )` | Wrap an object pair list. |
+| `fjson.pair-new` | `( key-a key-u val-node -- pair )` | Allocate an object pair, copying the key. |
+| `fjson.node-type` | `( node -- type )` | Return `FJSON_J-*`. |
+| `fjson.node-str@` | `( node -- a u )` | String payload, or `0 0` if not a string. |
+| `fjson.node-num@` | `( node -- u )` | Numeric payload, or `0` if not a number. |
+| `fjson.node-child` | `( node -- ulist\|0 )` | Child list for arrays/objects. |
+| `fjson.node-free` | `( node -- )` | Recursively free a node tree. |
+
+### Parse
+
+| Word | Stack | Description |
+|------|-------|-------------|
+| `fjson.parse` | `( text-a text-u -- node\|0 )` | Parse one JSON value. Returns `0` on syntax failure. |
+
+Parser support in `0.2.0`: objects, arrays, strings, unsigned decimal integers,
+and whitespace outside strings. String escapes supported: `\"`, `\\`, `\n`,
+`\t`, `\r`, and `\u00XX`.
+
+### Traversal
+
+| Word | Stack | Description |
+|------|-------|-------------|
+| `fjson.object-get` | `( key-a key-u obj-node -- val-node\|0 )` | Linear key lookup in an object proplist. |
+| `fjson.array-nth` | `( index arr-node -- val-node\|0 )` | 0-based array lookup. |
+| `fjson.array-len` | `( arr-node -- n )` | Array length. |
+| `fjson.object-len` | `( obj-node -- n )` | Object pair count. |
+
+### Emit Tree
+
+| Word | Stack | Description |
+|------|-------|-------------|
+| `fjson.emit-node` | `( node -- )` | Serialize a node tree to the current `fjson` output target. |
+
+Example:
+
+```forth
+s\" {\"key\":\"val\",\"n\":42}" fjson.parse dup
+s" key" rot fjson.object-get fjson.node-str@ type cr
+fjson.node-free
 ```
 
 ---
