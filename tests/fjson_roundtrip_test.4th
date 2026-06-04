@@ -1,6 +1,7 @@
 \ tests/fjson_roundtrip_test.4th — parse, emit, parse again.
 
 require ../forth-packages/ttester/1.2.1/ttester.4th
+require ../forth-packages/fenum/0.1.1/fenum.4th
 require ../fjson.4th
 
 0 #ERRORS !

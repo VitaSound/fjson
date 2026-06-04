@@ -11,7 +11,9 @@ variable fjson.load-depth
     depth fjson.load-depth @ - 0 ?do drop loop ;
 
 fjson.mark-depth
-require ../forth-packages/fenum/0.1.1/fenum.4th
+[IFUNDEF] ulist-new
+    require fenum.4th
+[THEN]
 fjson.drop-new-stack
 
 0 constant FJSON_J-NULL
@@ -73,6 +75,11 @@ fjson.drop-new-stack
 
 : fjson.node-num ( u -- node )
     FJSON_J-NUM fjson.node-new >r
+    r@ j-num !
+    r> ;
+
+: fjson.node-bool ( f -- node )
+    FJSON_J-BOOL fjson.node-new >r
     r@ j-num !
     r> ;
 

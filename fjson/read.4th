@@ -105,7 +105,7 @@ variable fjsonhay
     dup 0< IF drop 0 0 ELSE fjsonslen @ fjson.value-after-key THEN ;
 
 : fjson.digits-at ( pos -- diga digu | 0 0 )
-    fjsonlinea @ + fjsonstart !
+    fjsonlinea @ swap + fjsonstart !
     fjson.scan-digits ;
 
 : fjson.digits-after-key ( pos klen -- diga digu | 0 0 )

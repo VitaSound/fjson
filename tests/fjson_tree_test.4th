@@ -1,6 +1,7 @@
 \ tests/fjson_tree_test.4th — JSON tree parse/access/free.
 
 require ../forth-packages/ttester/1.2.1/ttester.4th
+require ../forth-packages/fenum/0.1.1/fenum.4th
 require ../fjson.4th
 
 0 #ERRORS !
@@ -39,5 +40,13 @@ T{ fjson.test-root @ fjson.node-free -> }T
 
 T{ s\" {\"a\":1}" fjson.parse fjson.node-free
     s\" {\"a\":1}" fjson.parse fjson.node-free -> }T
+
+T{ s\" {\"k\":\"a\\nb\\t\\\"\\\\\\u0041\"}" fjson.parse fjson.test-root !
+    s" k" fjson.test-root @ fjson.object-get fjson.node-str@
+    s\" a\nb\t\"\\A" compare -> 0
+    fjson.test-root @ fjson.node-free }T
+
+T{ s" [10,20]" fjson.parse dup >r fjson.node-child ulist-len -> 2
+    r> fjson.node-free }T
 
 #ERRORS @ 0= [IF] ." fjson_tree_test OK" cr [ELSE] ." fjson_tree_test FAILED" cr [THEN]

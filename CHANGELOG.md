@@ -5,6 +5,19 @@ All notable changes to fjson are documented here.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and
 this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.2.2] - 2026-06-05
+
+### Added
+
+- Tests for parse escapes, `fjson.node-child`, emit `array-open`/`array-close`,
+  `raw`, control-char `\u00` quoting, read-lite `digits-at`/`remain`, and
+  `fjson.str-concat`.
+- Explicit `fenum` require in fjson test files for reliable `fmix test`.
+
+### Changed
+
+- fcov colon definition coverage for `fjson/*.4th` is 100% under `fmix test`.
+
 ## [0.2.1] - 2026-06-05
 
 ### Added
