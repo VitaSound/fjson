@@ -5,6 +5,17 @@ All notable changes to fjson are documented here.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and
 this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.2.4] - 2026-06-05
+
+### Added
+
+- Tree parse support for JSON `true`, `false`, and `null` (`fjson.parse-bool`,
+  `fjson.parse-null`).
+- Node accessors: `fjson.node-bool@`, `fjson.node-null`, `fjson.node-null?`.
+- Read-lite: `fjson.key-bool`, `fjson.key-null`.
+- Emit/debug branches for `FJSON_J-NULL` and `FJSON_J-BOOL` typed nodes.
+- Tests for bool/null in tree, read-lite, and roundtrip paths.
+
 ## [0.2.3] - 2026-06-05
 
 ### Fixed

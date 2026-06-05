@@ -58,4 +58,27 @@ T{ fjson.rt-root @ fjson.rt-write-debug
 T{ fjson.rt-root @ fjson.node-free
     fjson.rt-root2 @ fjson.node-free -> }T
 
+T{ s\" {\"ok\":true,\"off\":false,\"empty\":null}" fjson.parse
+    dup fjson.rt-root ! fjson.rt-write
+    fjson.rt-slurp
+    s\" {\"ok\":true,\"off\":false,\"empty\":null}" compare -> 0 }T
+
+T{ fjson.rt-slurp fjson.parse dup fjson.rt-root2 ! drop
+    s" ok" fjson.rt-root2 @ fjson.object-get fjson.node-bool@ -> -1 }T
+
+T{ s" off" fjson.rt-root2 @ fjson.object-get fjson.node-bool@ -> 0 }T
+
+T{ s" empty" fjson.rt-root2 @ fjson.object-get fjson.node-null? -> -1 }T
+
+T{ fjson.rt-root @ fjson.rt-write-pretty
+    fjson.rt-slurp
+    s\" {\n  \"ok\": true,\n  \"off\": false,\n  \"empty\": null\n}" compare -> 0 }T
+
+T{ fjson.rt-root @ fjson.rt-write-debug
+    fjson.rt-slurp
+    s\" node OBJ len=3\n  pair key=\"ok\"\n    node BOOL true\n  pair key=\"off\"\n    node BOOL false\n  pair key=\"empty\"\n    node NULL\n" compare -> 0 }T
+
+T{ fjson.rt-root @ fjson.node-free
+    fjson.rt-root2 @ fjson.node-free -> }T
+
 #ERRORS @ 0= [IF] ." fjson_roundtrip_test OK" cr [ELSE] ." fjson_roundtrip_test FAILED" cr [THEN]

@@ -39,4 +39,16 @@ T{ s\" {\"id\":\"42\"}" s\" \"id\":" fjson.key-digits
 
 T{ s\" {\"name\":\"x\"}" s\" \"id\":" fjson.key-digits -> 0 0 }T
 
+T{ s\" {\"listChanged\":false}" s\" \"listChanged\":" fjson.key-bool -> 0 -1 }T
+T{ s\" {\"a\":true}" s\" \"a\":" fjson.key-bool -> -1 -1 }T
+T{ s\" {\"a\":42}" s\" \"a\":" fjson.key-bool -> 0 0 }T
+T{ s\" {\"name\":\"x\"}" s\" \"a\":" fjson.key-bool -> 0 0 }T
+T{ s\" {\"a\":\"true\"}" s\" \"a\":" fjson.key-bool -> 0 0 }T
+T{ s\" {\"a\":true,\"b\":false}" s\" \"b\":" fjson.key-bool -> 0 -1 }T
+T{ s\" {\"x\":null}" s\" \"x\":" fjson.key-null -> -1 }T
+T{ s\" {\"name\":\"x\"}" s\" \"x\":" fjson.key-null -> 0 }T
+T{ s\" {\"x\":false}" s\" \"x\":" fjson.key-null -> 0 }T
+T{ s\" {\"x\":\"null\"}" s\" \"x\":" fjson.key-null -> 0 }T
+T{ s\" {\"x\":nul}" s\" \"x\":" fjson.key-null -> 0 }T
+
 #ERRORS @ 0= [IF] ." fjson_test OK" cr [ELSE] ." fjson_test FAILED" cr [THEN]

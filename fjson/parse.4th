@@ -120,6 +120,34 @@ variable fjson.parse-num
     repeat
     fjson.parse-num @ fjson.node-num ;
 
+: fjson.parse-bool ( -- node|0 )
+    fjson.cur-in? 0= IF 0 EXIT THEN
+    fjson.peek [char] t = IF
+        [char] t fjson.take-char? 0= IF 0 EXIT THEN
+        [char] r fjson.take-char? 0= IF 0 EXIT THEN
+        [char] u fjson.take-char? 0= IF 0 EXIT THEN
+        [char] e fjson.take-char? 0= IF 0 EXIT THEN
+        -1 fjson.node-bool EXIT
+    THEN
+    fjson.peek [char] f = IF
+        [char] f fjson.take-char? 0= IF 0 EXIT THEN
+        [char] a fjson.take-char? 0= IF 0 EXIT THEN
+        [char] l fjson.take-char? 0= IF 0 EXIT THEN
+        [char] s fjson.take-char? 0= IF 0 EXIT THEN
+        [char] e fjson.take-char? 0= IF 0 EXIT THEN
+        0 fjson.node-bool EXIT
+    THEN
+    0 ;
+
+: fjson.parse-null ( -- node|0 )
+    fjson.cur-in? 0= IF 0 EXIT THEN
+    fjson.peek [char] n = 0= IF 0 EXIT THEN
+    [char] n fjson.take-char? 0= IF 0 EXIT THEN
+    [char] u fjson.take-char? 0= IF 0 EXIT THEN
+    [char] l fjson.take-char? 0= IF 0 EXIT THEN
+    [char] l fjson.take-char? 0= IF 0 EXIT THEN
+    fjson.node-null ;
+
 defer fjson.parse-value
 
 : fjson.finish-array ( lst -- node )
@@ -179,6 +207,9 @@ defer fjson.parse-value
     fjson.peek [char] { = IF fjson.parse-object EXIT THEN
     fjson.peek [char] [ = IF fjson.parse-array EXIT THEN
     fjson.peek [char] " = IF fjson.parse-string EXIT THEN
+    fjson.peek [char] n = IF fjson.parse-null EXIT THEN
+    fjson.peek [char] t = fjson.peek [char] f = or
+    IF fjson.parse-bool EXIT THEN
     fjson.peek fjson.digit? IF fjson.parse-uint EXIT THEN
     0 ;
 is fjson.parse-value

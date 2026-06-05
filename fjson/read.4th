@@ -119,3 +119,54 @@ variable fjsonhay
     fjson.search-off
     dup 0< IF drop 0 0 EXIT THEN
     fjsonslen @ fjson.digits-after-key ;
+
+: fjson.token-end? ( addr -- f )
+    dup fjson.in-line? 0= IF drop -1 EXIT THEN
+    c@ [char] a [char] z 1+ within 0=
+    dup IF EXIT THEN
+    c@ [char] A [char] Z 1+ within 0=
+    dup IF EXIT THEN
+    c@ [char] 0 [char] 9 1+ within 0= ;
+
+: fjson.lit-at? { lit-a lit-u -- f }
+    lit-u fjsonstart @ fjson.remain > IF 0 EXIT THEN
+    lit-a lit-u fjsonstart @ lit-u compare 0= 0= IF 0 EXIT THEN
+    lit-u fjsonstart @ + fjson.token-end? ;
+
+create fjson-lit-true   116 c, 114 c, 117 c, 101 c,
+create fjson-lit-false  102 c,  97 c, 108 c, 115 c, 101 c,
+create fjson-lit-null   110 c, 117 c, 108 c, 108 c,
+
+: fjson-lit-true@ ( -- a u ) fjson-lit-true 4 ;
+: fjson-lit-false@ ( -- a u ) fjson-lit-false 5 ;
+: fjson-lit-null@ ( -- a u ) fjson-lit-null 4 ;
+
+: fjson.bool-at ( abs -- f found )
+    fjsonstart !
+    fjson-lit-true@ fjson.lit-at? IF -1 -1 EXIT THEN
+    fjson-lit-false@ fjson.lit-at? IF 0 -1 EXIT THEN
+    0 0 ;
+
+: fjson.null-at ( abs -- found )
+    fjsonstart !
+    fjson-lit-null@ fjson.lit-at? ;
+
+: fjson.bool-after-key ( pos klen -- f found )
+    fjsonlinea @ swap >r + r> + fjson.bool-at ;
+
+: fjson.null-after-key ( pos klen -- found )
+    fjsonlinea @ swap >r + r> + fjson.null-at ;
+
+: fjson.key-bool ( linea lineu keya klen -- f found )
+    3 pick fjsonlinea !
+    2 pick fjsonlineu !
+    dup fjsonslen !
+    fjson.search-off
+    dup 0< IF drop 0 0 ELSE fjsonslen @ fjson.bool-after-key THEN ;
+
+: fjson.key-null ( linea lineu keya klen -- found )
+    3 pick fjsonlinea !
+    2 pick fjsonlineu !
+    dup fjsonslen !
+    fjson.search-off
+    dup 0< IF drop 0 ELSE fjsonslen @ fjson.null-after-key THEN ;

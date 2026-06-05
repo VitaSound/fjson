@@ -63,6 +63,15 @@ fjson.drop-new-stack
 : fjson.node-num@ ( node -- u )
     dup j-type @ FJSON_J-NUM = IF j-num @ ELSE drop 0 THEN ;
 
+: fjson.node-bool@ ( node -- f )
+    dup j-type @ FJSON_J-BOOL = IF j-num @ ELSE drop 0 THEN ;
+
+: fjson.node-null ( -- node )
+    FJSON_J-NULL fjson.node-new ;
+
+: fjson.node-null? ( node -- f )
+    dup j-type @ FJSON_J-NULL = IF drop -1 ELSE drop 0 THEN ;
+
 : fjson.node-child ( node -- lst|0 )
     j-child @ ;
 

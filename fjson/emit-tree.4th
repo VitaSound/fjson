@@ -53,6 +53,9 @@ defer fjson.debug-node-depth
     dup j-type @ FJSON_J-NUM = IF
         fjson.node-num@ fjson.uint EXIT
     THEN
+    dup j-type @ FJSON_J-NULL = IF
+        drop s" null" fjson.emit EXIT
+    THEN
     dup j-type @ FJSON_J-BOOL = IF
         j-num @ IF s" true" ELSE s" false" THEN fjson.raw EXIT
     THEN
@@ -105,6 +108,9 @@ is fjson.emit-node
     THEN
     over j-type @ FJSON_J-NUM = IF
         drop fjson.node-num@ fjson.uint EXIT
+    THEN
+    over j-type @ FJSON_J-NULL = IF
+        2drop s" null" fjson.emit EXIT
     THEN
     over j-type @ FJSON_J-BOOL = IF
         drop j-num @ IF s" true" ELSE s" false" THEN fjson.raw EXIT
@@ -159,6 +165,15 @@ is fjson.emit-node-pretty-depth
     over j-type @ FJSON_J-NUM = IF
         fjson.emit-indent s" node NUM " fjson.emit
         fjson.node-num@ fjson.uint fjson.emit-nl EXIT
+    THEN
+    over j-type @ FJSON_J-NULL = IF
+        fjson.emit-indent s" node NULL" fjson.emit fjson.emit-nl
+        drop EXIT
+    THEN
+    over j-type @ FJSON_J-BOOL = IF
+        fjson.emit-indent s" node BOOL " fjson.emit
+        dup j-num @ IF s" true" ELSE s" false" THEN fjson.emit fjson.emit-nl
+        drop EXIT
     THEN
     over j-type @ FJSON_J-ARR = IF
         fjson.debug-array EXIT

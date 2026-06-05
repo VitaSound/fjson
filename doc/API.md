@@ -19,14 +19,14 @@ This pulls in read-lite, emit, and tree modules (and `fjson/util.4th`).
 | **util** | Allocated strings (`fjson.str-dup`, `fjson.str-concat`) used by read and by fmcp. |
 
 **Not supported:** arrays in read-lite, floats, signed numbers,
-`true`/`false`/`null` parsing, and streaming multi-line documents.
+and streaming multi-line documents.
 
 ---
 
 ## Read-lite (`fjson/read.4th`)
 
-Internal line buffer is set by `fjson.key-string` / `fjson.key-digits` from
-`( linea lineu … )`.
+Internal line buffer is set by `fjson.key-string`, `fjson.key-digits`,
+`fjson.key-bool`, and `fjson.key-null` from `( linea lineu … )`.
 
 ### `fjson.contains? ( hay hlen suba slen -- f )`
 
@@ -53,6 +53,31 @@ Example:
 
 ```forth
 s" {\"id\":42}" s" \"id\":" fjson.key-digits type cr \ 42
+```
+
+### `fjson.key-bool ( linea lineu keya klen -- f found )`
+
+Find `"key":` then read an unquoted `true` / `false` literal.
+
+- `found = -1`, `f = -1` → `true`
+- `found = -1`, `f = 0` → `false`
+- `found = 0` → key missing or value is not a boolean literal
+
+Example:
+
+```forth
+s" {\"listChanged\":false}" s" \"listChanged\":" fjson.key-bool 0= . cr \ -1 (false)
+```
+
+### `fjson.key-null ( linea lineu keya klen -- found )`
+
+Find `"key":` then read an unquoted `null` literal. Returns `found = -1` when
+the value is exactly `null`, else `0`.
+
+Example:
+
+```forth
+s" {\"x\":null}" s" \"x\":" fjson.key-null 0= . cr \ -1
 ```
 
 ---
@@ -111,8 +136,8 @@ Tree nodes are allocated structs. The caller owns the root returned by
 
 | Constant | Value | Payload |
 |----------|-------|---------|
-| `FJSON_J-NULL` | `0` | reserved |
-| `FJSON_J-BOOL` | `1` | reserved |
+| `FJSON_J-NULL` | `0` | null literal |
+| `FJSON_J-BOOL` | `1` | boolean in `j-num` (`-1` = true, `0` = false) |
 | `FJSON_J-NUM` | `2` | unsigned integer in `j-num` |
 | `FJSON_J-STR` | `3` | allocated string in `j-str-a` / `j-str-u` |
 | `FJSON_J-ARR` | `4` | `j-child` is a `ulist` of json-node addresses |
@@ -129,12 +154,16 @@ pairs. Arrays are `ulist` values. Parser insertion uses `ulist-add` and then
 | `fjson.node-new` | `( type -- node )` | Allocate a zeroed node with `j-type`. |
 | `fjson.node-str` | `( a u -- node )` | Allocate a string node, copying the bytes. |
 | `fjson.node-num` | `( u -- node )` | Allocate an unsigned integer node. |
+| `fjson.node-bool` | `( f -- node )` | Allocate a boolean node (`-1` / `0`). |
+| `fjson.node-null` | `( -- node )` | Allocate a null node. |
 | `fjson.node-arr` | `( ulist -- node )` | Wrap an array list. |
 | `fjson.node-obj` | `( ulist -- node )` | Wrap an object pair list. |
 | `fjson.pair-new` | `( key-a key-u val-node -- pair )` | Allocate an object pair, copying the key. |
 | `fjson.node-type` | `( node -- type )` | Return `FJSON_J-*`. |
 | `fjson.node-str@` | `( node -- a u )` | String payload, or `0 0` if not a string. |
 | `fjson.node-num@` | `( node -- u )` | Numeric payload, or `0` if not a number. |
+| `fjson.node-bool@` | `( node -- f )` | Boolean payload (`-1` / `0`), or `0` if not a bool. |
+| `fjson.node-null?` | `( node -- f )` | `-1` if `FJSON_J-NULL`, else `0`. |
 | `fjson.node-child` | `( node -- ulist\|0 )` | Child list for arrays/objects. |
 | `fjson.node-free` | `( node -- )` | Recursively free a node tree. |
 
@@ -144,9 +173,9 @@ pairs. Arrays are `ulist` values. Parser insertion uses `ulist-add` and then
 |------|-------|-------------|
 | `fjson.parse` | `( text-a text-u -- node\|0 )` | Parse one JSON value. Returns `0` on syntax failure. |
 
-Parser support in `0.2.0`: objects, arrays, strings, unsigned decimal integers,
-and whitespace outside strings. String escapes supported: `\"`, `\\`, `\n`,
-`\t`, `\r`, and `\u00XX`.
+Parser support in `0.2.4`: objects, arrays, strings, unsigned decimal integers,
+`true`, `false`, `null`, and whitespace outside strings. String escapes
+supported: `\"`, `\\`, `\n`, `\t`, `\r`, and `\u00XX`.
 
 ### Traversal
 
@@ -176,7 +205,7 @@ fjson.node-free
 ### Cookbook: parse, inspect, emit, pretty emit
 
 This example uses every JSON value kind supported by the `0.2.x` tree layer:
-object, array, string, and unsigned integer. Booleans, null, floats, and signed
+object, array, string, unsigned integer, boolean, and null. Floats and signed
 numbers are not parsed in this release.
 
 Example input file:
@@ -278,4 +307,4 @@ Tests must be named `*_test.4th` and require ttester 1.2.1.
 ## Roadmap
 
 - fcov: replace inline `fcov.json-*` with fjson emitters.
-- Optional: `fjson.key-bool`, nested read for small objects if needed.
+- Optional: nested read for small objects if needed.
