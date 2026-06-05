@@ -5,6 +5,15 @@ All notable changes to fjson are documented here.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and
 this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.2.3] - 2026-06-05
+
+### Fixed
+
+- `fjson.parse-string` copies parsed text with `fjson.str-dup` instead of `pad`
+  (safe repeated parse/free in one session).
+- `fjson.pair-new` uses `fjson.pair-val-slot` instead of `>r` before `str-dup`
+  (avoids allocate errors when building object trees).
+
 ## [0.2.2] - 2026-06-05
 
 ### Added

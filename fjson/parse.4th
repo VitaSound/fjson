@@ -102,7 +102,7 @@ variable fjson.parse-num
     while
         fjson.peek [char] " = IF
             fjson.advance
-            pad fjson.tmp-len @ fjson.node-str EXIT
+            pad fjson.tmp-len @ fjson.str-dup fjson.node-str EXIT
         THEN
         fjson.parse-string-char 0= IF 0 EXIT THEN
     repeat

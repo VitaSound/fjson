@@ -93,10 +93,13 @@ fjson.drop-new-stack
     r@ j-child !
     r> ;
 
+variable fjson.pair-val-slot
+
 : fjson.pair-new ( key-a key-u val-node -- pair )
-    >r fjson.str-dup
+    fjson.pair-val-slot !
+    fjson.str-dup
     json-pair% allocate throw >r
     r@ pair-key-u !
     r@ pair-key-a !
-    r> r> over >r swap pair-val !
+    fjson.pair-val-slot @ r@ pair-val !
     r> ;
