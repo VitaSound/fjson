@@ -5,6 +5,12 @@ All notable changes to fjson are documented here.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and
 this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.2.5] - 2026-06-08
+
+### Added
+- GitHub Actions CI (Gforth 0.7.9, fmix 0.7.2, `fmix test`).
+- License, Ver and Cov badges in `README.md`.
+
 ## [0.2.4] - 2026-06-05
 
 ### Added

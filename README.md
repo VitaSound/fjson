@@ -1,4 +1,7 @@
 # fjson
+[![License](https://img.shields.io/badge/License-COPL-red.svg)](https://raw.githubusercontent.com/VitaSound/fjson/refs/heads/main/LICENSE)
+[![Ver](https://img.shields.io/badge/Ver-0.2.5-green.svg)](https://github.com/VitaSound/fjson/releases/tag/0.2.5)
+[![Cov](https://img.shields.io/badge/Cov-100%25-brightgreen.svg)](https://github.com/VitaSound/fjson/actions/workflows/ci.yml)
 
 Minimal **JSON write**, **read-lite**, and **tree** support for Gforth (VitaSound). Not a full RFC parser.
 
